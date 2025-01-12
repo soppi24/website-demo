@@ -156,16 +156,21 @@
     const deadlineInput = document.getElementById('deadline');
     let timerInterval;
 
+    // Get widget ID from URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const widgetId = urlParams.get('id') || `widget-${Date.now()}`; // Generate a unique ID if none is provided
+    localStorage.setItem('currentWidgetId', widgetId);
+
     // Expose functions globally
     window.startCountdown = startCountdown;
     window.editCountdown = editCountdown;
 
-    // Check for saved session data on page load
+    // Check for saved localStorage data on page load
     window.addEventListener('load', () => {
-        const savedAssignment = sessionStorage.getItem('assignmentName');
-        const savedDeadline = sessionStorage.getItem('deadline');
-        const savedColor = sessionStorage.getItem('selectedColor');
-        const savedImage = sessionStorage.getItem('selectedImage');
+        const savedAssignment = localStorage.getItem(`${widgetId}_assignmentName`);
+        const savedDeadline = localStorage.getItem(`${widgetId}_deadline`);
+        const savedColor = localStorage.getItem(`${widgetId}_selectedColor`);
+        const savedImage = localStorage.getItem(`${widgetId}_selectedImage`);
 
         if (savedAssignment && savedDeadline && savedColor && savedImage) {
             // Restore session
@@ -184,7 +189,7 @@
         }
     });
 
-    // Save data to sessionStorage and start the countdown
+    // Save data to localStorage and start the countdown
     function startCountdown() {
         const assignmentName = assignmentInput.value;
         const deadline = new Date(deadlineInput.value);
@@ -197,11 +202,11 @@
             return;
         }
 
-        // Save data to sessionStorage
-        sessionStorage.setItem('assignmentName', assignmentName);
-        sessionStorage.setItem('deadline', deadline.toISOString());
-        sessionStorage.setItem('selectedColor', selectedColor);
-        sessionStorage.setItem('selectedImage', selectedImage);
+        // Save data to localStorage
+        localStorage.setItem(`${widgetId}_assignmentName`, assignmentName);
+        localStorage.setItem(`${widgetId}_deadline`, deadline.toISOString());
+        localStorage.setItem(`${widgetId}_selectedColor`, selectedColor);
+        localStorage.setItem(`${widgetId}_selectedImage`, selectedImage);
 
         // Update the image and container styles
         timerImage.src = selectedImage;
@@ -240,10 +245,13 @@
             `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds left`;
     }
 
-    // Edit the countdown (clear sessionStorage and reset)
+    // Edit the countdown (clear localStorage and reset)
     function editCountdown() {
         clearInterval(timerInterval);
-        sessionStorage.clear(); // Clear saved session data
+        localStorage.removeItem(`${widgetId}_assignmentName`);
+        localStorage.removeItem(`${widgetId}_deadline`);
+        localStorage.removeItem(`${widgetId}_selectedColor`);
+        localStorage.removeItem(`${widgetId}_selectedImage`);
         setupContainer.style.display = 'block';
         timerContainer.style.display = 'none';
     }
