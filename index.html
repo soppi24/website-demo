@@ -154,6 +154,8 @@
     const countdownDisplay = document.getElementById('countdown');
     const assignmentInput = document.getElementById('assignmentName');
     const deadlineInput = document.getElementById('deadline');
+    window.startCountdown = startCountdown;
+    window.editCountdown = editCountdown;
     let timerInterval;
 
     // Check for saved session data on page load
