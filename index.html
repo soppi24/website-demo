@@ -1,3 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styled Countdown Timer</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #181818;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .timer-container {
+            background: #2b2b2b;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: #e1e1e1;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .dynamic-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+
+        .form-input {
+            margin: 10px auto;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 360px;
+            background: #1f1f1f;
+            color: white;
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        .dropdown-container {
+            background-color: #1f1f1f;
+            padding: 15px 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px auto;
+        }
+
+        .dropdown-label {
+            font-size: 1rem;
+            color: #ccc;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #333;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .dropdown:hover {
+            background-color: #444;
+        }
+
+        .form-button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
+        }
+
+        .form-button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+<div id="setup" class="timer-container">
+    <h1>
+        <img src="Icons/pink.png" alt="Dynamic" id="dynamicImage" class="dynamic-image" />
+        Countdown Setup
+    </h1>
+    <input type="text" id="assignmentName" class="form-input" placeholder="Enter assignment name" />
+    <input type="datetime-local" id="deadline" class="form-input" />
+
+    <!-- Dropdown Menu -->
+    <div class="dropdown-container">
+        <label class="dropdown-label" for="colorDropdown">Select a text color:</label>
+        <select id="colorDropdown" class="dropdown">
+            <option value="#C95A95" data-image="Icons/pink.png">Pink</option>
+            <option value="#6187C8" data-image="Icons/blue.png">Blue</option>
+            <option value="#C27D45" data-image="Icons/yellow.png">Yellow</option>
+            <option value="#86C232" data-image="Icons/green.png">Green</option>
+            <option value="#986CD3" data-image="Icons/purple.png">Purple</option>
+        </select>
+    </div>
+
+    <button class="form-button" onclick="startCountdown()">Start Countdown</button>
+</div>
+<div id="timer" class="timer-container" style="display: none;">
+    <h1>
+        <img src="Icons/pink.png" alt="Dynamic" id="timerImage" class="dynamic-image" />
+        <span id="assignmentDisplay"></span>
+    </h1>
+    <p class="date" id="deadlineDisplay"></p>
+    <p id="countdown"></p>
+    <button class="form-button" onclick="editCountdown()">Edit</button>
+</div>
 <script>
     const colorDropdown = document.getElementById('colorDropdown');
     const timerImage = document.getElementById('timerImage');
@@ -129,3 +275,5 @@
         return `${date.toLocaleDateString(undefined, options)} (${daysLeft} days left)`;
     }
 </script>
+</body>
+</html>
