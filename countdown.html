@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Countdown</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #181818;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .timer-container, .edit-container {
+            background: #2b2b2b;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: #e1e1e1;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .dynamic-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+
+        .form-input {
+            margin: 10px auto;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 360px;
+            background: #1f1f1f;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .dropdown-container {
+            background-color: #1f1f1f;
+            padding: 15px 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px auto;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #333;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .form-button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
+        }
+
+        .form-button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+<div id="timer" class="timer-container">
+    <h1>
+        <img id="assignmentIcon" alt="Assignment Icon" class="dynamic-image" />
+        <span id="assignmentNameDisplay"></span>
+    </h1>
+    <p class="date" id="deadlineDisplay"></p>
+    <p class="countdown" id="countdown"></p>
+    <button class="form-button" onclick="editCountdown()">Edit</button>
+</div>
+
+<div id="editForm" class="edit-container" style="display: none;">
+    <h1>Edit Assignment</h1>
+    <input type="text" id="editAssignmentName" class="form-input" placeholder="Assignment Name" />
+    <input type="datetime-local" id="editDeadline" class="form-input" />
+    <div class="dropdown-container">
+        <label for="editColorDropdown">Select Color:</label>
+        <select id="editColorDropdown" class="dropdown">
+            <option value="#C95A95" data-image="Icons/pink.png">Pink</option>
+            <option value="#6187C8" data-image="Icons/blue.png">Blue</option>
+            <option value="#C27D45" data-image="Icons/yellow.png">Yellow</option>
+            <option value="#86C232" data-image="Icons/green.png">Green</option>
+            <option value="#986CD3" data-image="Icons/purple.png">Purple</option>
+        </select>
+    </div>
+    <button class="form-button" onclick="saveChanges()">Save</button>
+    <button class="form-button" onclick="cancelEdit()">Cancel</button>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const userName = params.get("user");
+    const assignmentKey = params.get("assignment");
+
+    const userAssignments = JSON.parse(localStorage.getItem(userName)) || {};
+    const assignment = userAssignments[assignmentKey];
+
+    if (!assignment) {
+        document.body.innerHTML = "<h1>Assignment not found</h1>";
+        throw new Error("Assignment not found");
+    }
+
+    // Populate initial details
+    document.getElementById("assignmentNameDisplay").textContent = assignment.name;
+    document.getElementById("deadlineDisplay").textContent = formatDate(new Date(assignment.deadline));
+    document.getElementById("assignmentIcon").src = assignment.icon;
+    document.getElementById("timer").style.backgroundColor = hexToRgba(assignment.color, 0.1);
+    document.getElementById("countdown").style.color = assignment.color;
+
+    function updateCountdown() {
+        const now = new Date();
+        const deadline = new Date(assignment.deadline);
+        const timeLeft = deadline - now;
+
+        if (timeLeft <= 0) {
+            document.getElementById("countdown").textContent = "Time is up!";
+            return;
+        }
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown").textContent =
+            `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds left`;
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    function editCountdown() {
+        document.getElementById("timer").style.display = "none";
+        document.getElementById("editForm").style.display = "block";
+
+        document.getElementById("editAssignmentName").value = assignment.name;
+        document.getElementById("editDeadline").value = assignment.deadline;
+        document.getElementById("editColorDropdown").value = assignment.color;
+    }
+
+    function saveChanges() {
+        const selectedOption = document.getElementById("editColorDropdown").selectedOptions[0];
+        const imageSrc = selectedOption.dataset.image;
+
+        assignment.name = document.getElementById("editAssignmentName").value;
+        assignment.deadline = document.getElementById("editDeadline").value;
+        assignment.color = document.getElementById("editColorDropdown").value;
+        assignment.icon = imageSrc;
+
+        userAssignments[assignmentKey] = assignment;
+        localStorage.setItem(userName, JSON.stringify(userAssignments));
+        location.reload();
+    }
+
+    function cancelEdit() {
+        document.getElementById("timer").style.display = "block";
+        document.getElementById("editForm").style.display = "none";
+    }
+
+    function hexToRgba(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function formatDate(date) {
+        const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+        const daysLeft = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24));
+        return `${date.toLocaleDateString(undefined, options)} (${daysLeft} days left)`;
+    }
+</script>
+</body>
+</html>
