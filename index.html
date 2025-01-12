@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Styled Countdown Timer</title>
+    <title>Assignment Dashboard</title>
     <style>
         body {
             margin: 0;
             height: 100vh;
             background-color: #181818;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             font-family: Arial, sans-serif;
             color: white;
             overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
         }
 
         .timer-container {
@@ -22,26 +29,9 @@
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            text-align: center;
             color: #e1e1e1;
-            width: 90%;
-            max-width: 400px;
+            margin: 10px 0;
             position: relative;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .dynamic-image {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
         }
 
         .form-input {
@@ -54,8 +44,6 @@
             max-width: 360px;
             background: #1f1f1f;
             color: white;
-            box-sizing: border-box;
-            text-align: left;
         }
 
         .dropdown-container {
@@ -95,184 +83,181 @@
 
         .form-button {
             margin-top: 15px;
+            margin-left: 15px;
+            margin-right: 15px;
             padding: 10px 20px;
             border: none;
             background-color: #333;
             color: white;
             border-radius: 10px;
-            cursor: pointer;
             font-size: 1rem;
-            width: 100%;
-            max-width: 360px;
-            box-sizing: border-box;
+            cursor: pointer;
         }
 
-        .form-button:hover {
-            background-color: #555;
+        .assignment-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .assignment-item {
+            background-color: #2b2b2b;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .assignment-item a {
+            text-decoration: none;
+            color: #ccc;
+            font-size: 1rem;
+        }
+
+        .delete-button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+
+        .delete-button:hover {
+            background-color: #c9302c;
         }
     </style>
 </head>
 <body>
-<div id="setup" class="timer-container">
-    <h1>
-        <img src="Icons/pink.png" alt="Dynamic" id="dynamicImage" class="dynamic-image" />
-        Countdown Setup
-    </h1>
-    <input type="text" id="assignmentName" class="form-input" placeholder="Enter assignment name" />
-    <input type="datetime-local" id="deadline" class="form-input" />
-
-    <!-- Dropdown Menu -->
-    <div class="dropdown-container">
-        <label class="dropdown-label" for="colorDropdown">Select a text color:</label>
-        <select id="colorDropdown" class="dropdown">
-            <option value="#C95A95" data-image="Icons/pink.png">Pink</option>
-            <option value="#6187C8" data-image="Icons/blue.png">Blue</option>
-            <option value="#C27D45" data-image="Icons/yellow.png">Yellow</option>
-            <option value="#86C232" data-image="Icons/green.png">Green</option>
-            <option value="#986CD3" data-image="Icons/purple.png">Purple</option>
-        </select>
+<div class="container">
+    <div id="login">
+        <input type="text" id="userName" class="form-input" placeholder="Enter your name" />
+        <button class="form-button" onclick="login()">Login</button>
     </div>
+    <div id="dashboard" style="display: none;">
+        <h1 id="welcomeUser"></h1>
+        <ul id="assignmentList" class="assignment-list"></ul>
+        <button class="form-button" onclick="showAddAssignment()">Add Assignment</button>
+    </div>
+    <div id="addAssignment" class="timer-container" style="display: none;">
+        <h1>Add Assignment</h1>
+        <input type="text" id="assignmentName" class="form-input" placeholder="Enter assignment name" />
+        <input type="datetime-local" id="deadline" class="form-input" />
+        <div class="dropdown-container">
+            <label for="colorDropdown">Select a text color:</label>
+            <select id="colorDropdown" class="dropdown">
+                <option value="#C95A95" data-image="Icons/pink.png">Pink</option>
+                <option value="#6187C8" data-image="Icons/blue.png">Blue</option>
+                <option value="#C27D45" data-image="Icons/yellow.png">Yellow</option>
+                <option value="#86C232" data-image="Icons/green.png">Green</option>
+                <option value="#986CD3" data-image="Icons/purple.png">Purple</option>
+            </select>
+        </div>
+        <button class="form-button" onclick="addAssignment()">Save Assignment</button>
+        <button class="form-button" onclick="cancelAssignment()">Cancel</button>
+    </div>
+</div>
 
-    <button class="form-button" onclick="startCountdown()">Start Countdown</button>
-</div>
-<div id="timer" class="timer-container" style="display: none;">
-    <h1>
-        <img src="Icons/pink.png" alt="Dynamic" id="timerImage" class="dynamic-image" />
-        <span id="assignmentDisplay"></span>
-    </h1>
-    <p class="date" id="deadlineDisplay"></p>
-    <p id="countdown"></p>
-    <button class="form-button" onclick="editCountdown()">Edit</button>
-</div>
 <script>
-    const colorDropdown = document.getElementById('colorDropdown');
-    const timerImage = document.getElementById('timerImage');
-    const setupContainer = document.getElementById('setup');
-    const timerContainer = document.getElementById('timer');
-    const assignmentDisplay = document.getElementById('assignmentDisplay');
-    const deadlineDisplay = document.getElementById('deadlineDisplay');
-    const countdownDisplay = document.getElementById('countdown');
-    const assignmentInput = document.getElementById('assignmentName');
-    const deadlineInput = document.getElementById('deadline');
-    let timerInterval;
+    let userName;
 
-    // Step 1: Get or Generate Widget ID
-    let widgetId = localStorage.getItem('widgetId'); // Check if widgetId exists in localStorage
+    // Elements
+    const loginEl = document.getElementById('login');
+    const dashboardEl = document.getElementById('dashboard');
+    const addAssignmentEl = document.getElementById('addAssignment');
+    const assignmentListEl = document.getElementById('assignmentList');
 
-    if (!widgetId) {
-        const urlParams = new URLSearchParams(window.location.search);
-        widgetId = urlParams.get('id') || `widget-${Date.now()}`; // Generate a new one if not found
-        localStorage.setItem('widgetId', widgetId); // Save it to localStorage for future use
-    }
-
-    // Expose functions globally
-    window.startCountdown = startCountdown;
-    window.editCountdown = editCountdown;
-
-    // Step 2: Load Data on Page Load
     window.addEventListener('load', () => {
-        const savedAssignment = localStorage.getItem(`${widgetId}_assignmentName`);
-        const savedDeadline = localStorage.getItem(`${widgetId}_deadline`);
-        const savedColor = localStorage.getItem(`${widgetId}_selectedColor`);
-        const savedImage = localStorage.getItem(`${widgetId}_selectedImage`);
-
-        if (savedAssignment && savedDeadline && savedColor && savedImage) {
-            // Restore widget state
-            setupContainer.style.display = 'none';
-            timerContainer.style.display = 'block';
-
-            assignmentDisplay.textContent = savedAssignment;
-            deadlineDisplay.textContent = formatDate(new Date(savedDeadline));
-            countdownDisplay.style.color = savedColor;
-            timerImage.src = savedImage;
-            timerContainer.style.backgroundColor = hexToRgba(savedColor, 0.1);
-
-            // Start the countdown
-            updateCountdown(new Date(savedDeadline));
-            timerInterval = setInterval(() => updateCountdown(new Date(savedDeadline)), 1000);
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            userName = savedUser;
+            loadDashboard();
         }
     });
 
-    // Step 3: Start Countdown
-    function startCountdown() {
-        const assignmentName = assignmentInput.value;
-        const deadline = new Date(deadlineInput.value);
-        const selectedOption = colorDropdown.options[colorDropdown.selectedIndex];
-        const selectedColor = selectedOption.value;
-        const selectedImage = selectedOption.dataset.image;
+    function login() {
+        const inputName = document.getElementById('userName').value.trim();
+        if (!inputName) {
+            alert('Please enter your name.');
+            return;
+        }
+        userName = inputName;
+        localStorage.setItem('currentUser', userName);
+        loadDashboard();
+    }
 
-        if (!assignmentName || isNaN(deadline.getTime())) {
-            alert('Please enter a valid assignment name and deadline!');
+    function loadDashboard() {
+        loginEl.style.display = 'none';
+        dashboardEl.style.display = 'block';
+        document.getElementById('welcomeUser').textContent = `All Assignments`;
+        renderAssignments();
+    }
+
+    function renderAssignments() {
+        const userAssignments = JSON.parse(localStorage.getItem(userName)) || {};
+        assignmentListEl.innerHTML = '';
+
+        for (const [key, assignment] of Object.entries(userAssignments)) {
+            const listItem = document.createElement('li');
+            listItem.className = 'assignment-item';
+            listItem.innerHTML = `
+                <span>${assignment.name}</span>
+                <div>
+                    <a href="countdown.html?user=${userName}&assignment=${key}" target="_blank">View</a>
+                    <button class="delete-button" onclick="deleteAssignment('${key}')">Delete</button>
+                </div>
+            `;
+            assignmentListEl.appendChild(listItem);
+        }
+    }
+
+    function showAddAssignment() {
+        dashboardEl.style.display = 'none';
+        addAssignmentEl.style.display = 'block';
+    }
+
+    function addAssignment() {
+        const name = document.getElementById('assignmentName').value.trim();
+        const deadline = document.getElementById('deadline').value;
+        const colorDropdown = document.getElementById('colorDropdown');
+        const selectedColor = colorDropdown.value;
+        const selectedImage = colorDropdown.options[colorDropdown.selectedIndex].dataset.image;
+
+        if (!name || !deadline || !selectedColor || !selectedImage) {
+            alert('All fields are required.');
             return;
         }
 
-        // Save data to localStorage
-        localStorage.setItem(`${widgetId}_assignmentName`, assignmentName);
-        localStorage.setItem(`${widgetId}_deadline`, deadline.toISOString());
-        localStorage.setItem(`${widgetId}_selectedColor`, selectedColor);
-        localStorage.setItem(`${widgetId}_selectedImage`, selectedImage);
+        const key = name.toLowerCase().replace(/\s+/g, '-');
+        const newAssignment = { name, deadline, color: selectedColor, icon: selectedImage };
 
-        // Update the image and container styles
-        timerImage.src = selectedImage;
-        timerContainer.style.backgroundColor = hexToRgba(selectedColor, 0.1);
+        const userAssignments = JSON.parse(localStorage.getItem(userName)) || {};
+        userAssignments[key] = newAssignment;
+        localStorage.setItem(userName, JSON.stringify(userAssignments));
 
-        // Set display values
-        setupContainer.style.display = 'none';
-        timerContainer.style.display = 'block';
-        assignmentDisplay.textContent = assignmentName;
-        deadlineDisplay.textContent = formatDate(deadline);
-        countdownDisplay.style.color = selectedColor;
+        // Reset and return to dashboard
+        document.getElementById('assignmentName').value = '';
+        document.getElementById('deadline').value = '';
+        colorDropdown.selectedIndex = 0;
 
-        // Start countdown
-        clearInterval(timerInterval);
-        updateCountdown(deadline);
-        timerInterval = setInterval(() => updateCountdown(deadline), 1000);
+        addAssignmentEl.style.display = 'none';
+        dashboardEl.style.display = 'block';
+        renderAssignments();
     }
 
-    // Step 4: Update Countdown Display
-    function updateCountdown(deadline) {
-        const now = new Date();
-        const timeLeft = deadline - now;
-
-        if (timeLeft <= 0) {
-            countdownDisplay.textContent = 'Time is up!';
-            clearInterval(timerInterval);
-            return;
-        }
-
-        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-        countdownDisplay.textContent =
-            `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds left`;
+    function cancelAssignment() {
+        addAssignmentEl.style.display = 'none';
+        dashboardEl.style.display = 'block';
     }
 
-    // Step 5: Edit Countdown (Clear Data and Reset)
-    function editCountdown() {
-        clearInterval(timerInterval);
-        localStorage.removeItem(`${widgetId}_assignmentName`);
-        localStorage.removeItem(`${widgetId}_deadline`);
-        localStorage.removeItem(`${widgetId}_selectedColor`);
-        localStorage.removeItem(`${widgetId}_selectedImage`);
-        setupContainer.style.display = 'block';
-        timerContainer.style.display = 'none';
-    }
-
-    // Helper: Convert HEX to RGBA
-    function hexToRgba(hex, alpha) {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-
-    // Helper: Format Date
-    function formatDate(date) {
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const daysLeft = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24));
-        return `${date.toLocaleDateString(undefined, options)} (${daysLeft} days left)`;
+    function deleteAssignment(key) {
+        const userAssignments = JSON.parse(localStorage.getItem(userName)) || {};
+        delete userAssignments[key];
+        localStorage.setItem(userName, JSON.stringify(userAssignments));
+        renderAssignments();
     }
 </script>
 </body>
